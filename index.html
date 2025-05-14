@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Text Editor with Powerful Features</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.10.0/tinymce.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            transition: background-color 0.3s ease;
+        }
+
+        #editor-container {
+            margin: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #2e2e2e;
+        }
+
+        .dark-mode #editor-container {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode .tox-toolbar {
+            background-color: #444;
+            border-color: #555;
+        }
+
+        .dark-mode .tox-editor-container {
+            background-color: #2e2e2e;
+        }
+
+        .dark-mode .tox-tbtn {
+            background-color: #555;
+            color: #fff;
+        }
+
+        .dark-mode .tox-tbtn:hover {
+            background-color: #777;
+        }
+
+        .dark-mode .tox-toolbar-button {
+            background-color: #444;
+        }
+
+        .dark-mode .tox-edit-area {
+            background-color: #2e2e2e;
+        }
+
+        /* Speech-to-text button styling */
+        #start-speech {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-speech:hover {
+            background-color: #45a049;
+        }
+
+        /* Toolbar buttons and additional features */
+        .toolbar-btns {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="editor-container">
+        <h1>Advanced Text Editor with Powerful Features</h1>
+        <textarea id="editor"></textarea>
+        <div class="toolbar-btns">
+            <button id="toggleDarkMode">Toggle Dark Mode</button>
+            <button id="start-speech">Start Speech-to-Text</button>
+            <button id="insertEmoji">Insert Emoji</button>
+            <button id="insertTable">Insert Table</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.10.0/tinymce.min.js"></script>
+    <script>
+        // Initialize TinyMCE with multilingual support
+        tinymce.init({
+            selector: '#editor',
+            plugins: 'wordcount link image table media lists code directionality emoticons',
+            toolbar: 'undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | fontselect fontsizeselect | forecolor backcolor | bullist numlist | link image | table media | code | ltr rtl | emoticons',
+            menubar: 'file edit view insert format tools table',
+            height: 600,
+            content_css: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.10.0/themes/silver/theme.min.css',
+            skin: 'oxide',
+            language: 'en',  // Default language is English
+            setup: function(editor) {
+                // Optionally, set content with both Arabic and English
+                editor.on('init', function() {
+                    editor.setContent('<p>Hello, this is an English text. مرحبًا، هذا نص باللغة العربية!</p>');
+                });
+            }
+        });
+
+        // Toggle Dark Mode
+        const toggleDarkModeButton = document.getElementById('toggleDarkMode');
+        const bodyElement = document.body;
+        toggleDarkModeButton.addEventListener('click', () => {
+            bodyElement.classList.toggle('dark-mode');
+        });
+
+        // Speech-to-Text Feature
+        const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new speechRecognition();
+        recognition.lang = 'en-US'; // You can change the language here
+        recognition.continuous = true;
+
+        const startSpeechButton = document.getElementById('start-speech');
+        startSpeechButton.addEventListener('click', function() {
+            recognition.start();
+            recognition.onresult = function(event) {
+                let transcript = event.results[event.results.length - 1][0].transcript;
+                tinymce.activeEditor.execCommand('mceInsertContent', false, transcript);
+            };
+        });
+
+        // Insert Emoji
+        const insertEmojiButton = document.getElementById('insertEmoji');
+        insertEmojiButton.addEventListener('click', function() {
+            tinymce.activeEditor.execCommand('mceInsertContent', false, '😊');
+        });
+
+        // Insert Table
+        const insertTableButton = document.getElementById('insertTable');
+        insertTableButton.addEventListener('click', function() {
+            tinymce.activeEditor.execCommand('mceInsertContent', false, '<table><tr><td>Cell 1</td><td>Cell 2</td></tr></table>');
+        });
+    </script>
+
+</body>
+</html>
