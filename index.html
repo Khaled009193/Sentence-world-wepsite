@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Text Editor with Dark Mode, Speech-to-Text & AI Features</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.10.0/tinymce.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            transition: background-color 0.3s ease;
+        }
+
+        #editor-container {
+            margin: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #2e2e2e;
+        }
+
+        .dark-mode #editor-container {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode .tox-toolbar {
+            background-color: #444;
+            border-color: #555;
+        }
+
+        .dark-mode .tox-editor-container {
+            background-color: #2e2e2e;
+        }
+
+        .dark-mode .tox-tbtn {
+            background-color: #555;
+            color: #fff;
+        }
+
+        .dark-mode .tox-tbtn:hover {
+            background-color: #777;
+        }
+
+        .dark-mode .tox-toolbar-button {
+            background-color: #444;
+        }
+
+        .dark-mode .tox-edit-area {
+            background-color: #2e2e2e;
+        }
+
+        /* Speech-to-text button styling */
+        #start-speech {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-speech:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="editor-container">
+        <h1>Advanced Text Editor with Speech-to-Text, Dark Mode, and AI Features</h1>
+        <textarea id="editor"></textarea>
+        <button id="toggleDarkMode">Toggle Dark Mode</button>
+        <button id="start-speech">Start Speech-to-Text</button>
+        <div id="sentimentAnalysisResult"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.10.0/tinymce.min.js"></script>
+    <script>
+        // Initialize TinyMCE with multilingual support
+        tinymce.init({
+            selector: '#editor',
+            plugins: 'wordcount link image table media lists code directionality',
+            toolbar: 'undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | fontselect fontsizeselect | forecolor backcolor | bullist numlist | link image | table media | code | ltr rtl',
+            menubar: 'file edit view insert format tools table',
+            height: 600,
+            language: 'en',  // Change this to 'ar' for Arabic or other languages
+            content_css: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.10.0/themes/silver/theme.min.css',
+            skin: 'oxide',
+            extended_valid_elements: 'a[href|target=_blank|title|onclick],img[src|alt|width|height|style]',
+            setup: function(editor) {
+                editor.on('init', function() {
+                    editor.setContent('<p>Welcome to your multilingual and dark mode text editor!</p>');
+                });
+            }
+        });
+
+        // Toggle Dark Mode
+        const toggleDarkModeButton = document.getElementById('toggleDarkMode');
+        const bodyElement = document.body;
+        toggleDarkModeButton.addEventListener('click', () => {
+            bodyElement.classList.toggle('dark-mode');
+        });
+
+        // Speech-to-Text Feature
+        const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new speechRecognition();
+        recognition.lang = 'en-US'; // You can change the language here
+        recognition.continuous = true;
+
+        const startSpeechButton = document.getElementById('start-speech');
+        startSpeechButton.addEventListener('click', () => {
+            recognition.start();
+        });
+
+        recognition.onresult = function(event) {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            // Insert speech text into TinyMCE editor
+            tinymce.activeEditor.execCommand('mceInsertContent', false, transcript);
+        };
+
+        // Sentiment Analysis (Dummy AI Feature)
+        function analyzeSentiment(text) {
+            // Here you can integrate an AI API like OpenAI or similar
+            // For demonstration, we'll assume a very basic sentiment analysis
+            const positiveKeywords = ['good', 'great', 'happy', 'positive'];
+            const negativeKeywords = ['bad', 'sad', 'negative', 'angry'];
+
+            let sentiment = 'Neutral';
+            positiveKeywords.forEach(word => {
+                if (text.includes(word)) sentiment = 'Positive';
+            });
+            negativeKeywords.forEach(word => {
+                if (text.includes(word)) sentiment = 'Negative';
+            });
+
+            return sentiment;
+        }
+
+        // Trigger sentiment analysis after text is typed
+        tinymce.activeEditor.on('keyup', function(e) {
+            const content = tinymce.activeEditor.getContent();
+            const sentiment = analyzeSentiment(content);
+            document.getElementById('sentimentAnalysisResult').innerText = `Sentiment: ${sentiment}`;
+        });
+    </script>
+
+</body>
+</html>
